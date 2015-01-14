@@ -9,8 +9,7 @@
 
 .. image:: /images/dhpark.jpg
    :height: 100 px
-   :scale: 30
-   :align: right
+   :align: left 
 
 I am a Computer Architecture Ph.D. student in University of Michigan under Professor Valeria Bertacco. I obtained my B.S. in Engineering from Harvey Mudd College in 2014.
 
