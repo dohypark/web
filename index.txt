@@ -8,6 +8,7 @@
 .. type: text
 
 .. image:: /images/dhpark.jpg
+   :height: 100 px
    :scale: 30
    :align: right
 
