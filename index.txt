@@ -1,0 +1,15 @@
+.. title: Dong-hyeon Park
+.. slug: index
+.. date: 2015-01-14 16:53:01 UTC-05:00
+.. tags: 
+.. category: 
+.. link: 
+.. description: About me.
+.. type: text
+
+.. image:: /images/dhpark.jpg
+   :align: right
+
+I am a Computer Architecture Ph.D. student in University of Michigan under Professor Valeria Bertacco. I obtained my B.S. in Engineering from Harvey Mudd College in 2014.
+
+My current areas of interest are heterogeneous architectures and network-on-chip systems.
