@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Traffic Generator | dohypark</title>
+
+    
+            <link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+
+    
+            <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+
+      <link rel="canonical" href="http://web.eecs.umich.edu/~dohypark/traffic-generator.html">
+
+
+
+
+    
+        <!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+
+    
+
+
+    
+
+    <meta name="author" content="Dong-hyeon Park">
+    
+    <meta property="og:site_name" content="dohypark">
+    <meta property="og:title" content="Traffic Generator">
+    <meta property="og:url" content="http://web.eecs.umich.edu/~dohypark/traffic-generator.html">
+    <meta property="og:description" content="This is a page for Traffic Generator for heterogeneous systems. Current Version: Svn rev 9. 10/9/2014
+The code is written in C++, and the subversion repository for the tool is located in: '''ariel.eec">
+    <meta property="og:type" content="article">
+    <meta property="article:published_time" content="2015-01-14T17:50:19-05:00">
+
+    
+
+    
+
+
+
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://web.eecs.umich.edu/~dohypark/">
+
+                <span id="blog-title">dohypark</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                
+                <li>
+<a href="archive.html">Archive</a>
+                </li>
+<li class="active">
+<a href="#">Traffic Generator</a>
+                </li>
+<li>
+<a href="categories/index.html">Tags</a>
+                </li>
+<li>
+<a href="rss.xml">RSS feed</a>
+
+                
+            </li>
+</ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                    
+    <li>
+    <a href="traffic-generator.wiki" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+        </div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav>
+
+<!-- End of Menubar -->
+
+<div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            
+            
+<article class="storypage" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <header>
+        
+    <h1 class="p-name entry-title" itemprop="headline name"><a href="#" class="u-url">Traffic Generator</a></h1>
+
+        
+
+    </header>
+    <div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>This is a page for Traffic Generator for heterogeneous systems. Current Version: Svn rev 9. 10/9/2014</p>
+<p>The code is written in C++, and the subversion repository for the tool is located in: '''ariel.eecs.umich.edu/vips/project/traf_gen'''</p>
+<h4>Setup and Install</h4>
+<ul>
+<li>Required dependency:<ul>
+<li>Boost C++ library (<a href="http://www.boost.org/">http://www.boost.org/</a>) version 1.41 or above.</li>
+<li>GCC version 4.4.7 or above</li>
+</ul>
+</li>
+</ul>
+<h4>Configuration File</h4>
+<p>The traffic generator needs a configuration file to setup the network configuration and different hardware parameters.</p>
+<p>Currently supported parameters:</p>
+<ul>
+<li>'''topology_type''': specify the topology of the network.<ul>
+<li>Supported type: mesh</li>
+</ul>
+</li>
+<li>'''traffic_pattern''': declare a traffic pattern.<ul>
+<li>Supported type: uniform</li>
+</ul>
+</li>
+<li>'''traffic_inj_process''': declare an injection rate<ul>
+<li>Supported type: uniform, burst, gaussian, onoff</li>
+</ul>
+</li>
+<li>'''traffic_senders''': declare a set of nodes that will send packets.</li>
+<li>'''traffic_receivers''': declare a set of nodes that will receive packets. (may send replies)</li>
+<li>'''packet_type''': declare a packet that is generated from a sender.</li>
+<li>'''packet_type_reply''': declare a reply packet that will be generated from a receiver.<ul>
+<li>Supported type: fixed, erlang</li>
+</ul>
+</li>
+<li>'''node_group''': assign an injection process, traffic pattern, senders, receivers, and packets together to create a node group.</li>
+<li>'''simclk_step''': specify the simulation step.</li>
+<li>'''simclk_end''': specify when the simulation terminates.</li>
+</ul>
+<h4>Simulation Flow</h4>
+<p>The traffic generator currently runs in the following manner:</p>
+<ol>
+<li>Take in configuration file<ol>
+<li>Construct node network</li>
+<li>Declare injection processes</li>
+<li>Declare traffic patterns</li>
+<li>Declare sender and receiver nodes</li>
+<li>Declare packets and reply packets.</li>
+<li>Create node groups and assign injection process, traffic patterns, senders, receivers and packets to each node group.</li>
+<li>Set the simulation step and end point</li>
+</ol>
+</li>
+<li>Initialize and start simulation:</li>
+<li>At each simulation step:<ul>
+<li>For each node group:<ul>
+<li>Test each node in the group. If packet is to be generated:<ol>
+<li>Pick a destination node</li>
+<li>Pick the type of packet to generate.<ul>
+<li>If the chosen packet is a request-reply packet, send a reply job request to the queue.</li>
+</ul>
+</li>
+<li>Generate the packet and add it to traffic report</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>Process reply job queue</li>
+<li>Increment simulation clock</li>
+</ul>
+</li>
+<li>Print post-simulation statistics</li>
+<li>Write traffic log to file</li>
+</ol>
+<h4>Functionalities to be Supported</h4>
+<p>This is a list of functionalities that are currenty or will be worked. (in no particular order)</p>
+<ul>
+<li>Setting parameters as a command line option</li>
+<li>User configurable output format</li>
+<li>DRAM memory access model</li>
+</ul>
+</div>
+    </div>
+    
+
+</article>
+
+        </div>
+        <!--End of body content-->
+
+        <footer>
+            Contents © 2015         <a href="mailto:dohypark@umich.edu">Dong-hyeon Park</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+    </div>
+</div>
+
+
+            <script src="assets/js/all-nocdn.js"></script>
+    
+<!-- Social buttons -->
+<div id="addthisbox" class="addthis_toolbox addthis_peekaboo_style addthis_default_style addthis_label_style addthis_32x32_style">
+<a class="addthis_button_more">Share</a>
+<ul>
+<li>
+<a class="addthis_button_facebook"></a>
+</li>
+<li>
+<a class="addthis_button_google_plusone_share"></a>
+</li>
+<li>
+<a class="addthis_button_linkedin"></a>
+</li>
+<li>
+<a class="addthis_button_twitter"></a>
+</li>
+</ul>
+</div>
+<script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-4f7088a56bb93798"></script>
+<!-- End of social buttons -->
+
+
+    <script>jQuery("a.image-reference,!.islink").colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script>
+    <!-- fancy dates -->
+    <script>
+    moment.locale("");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script>
+    <!-- end fancy dates -->
+    
+
+
+</body>
+</html>

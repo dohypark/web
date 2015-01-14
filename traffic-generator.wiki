@@ -1,0 +1,59 @@
+This is a page for Traffic Generator for heterogeneous systems.
+Current Version: Svn rev 9. 10/9/2014
+
+The code is written in C++, and the subversion repository for the tool is located in: '''ariel.eecs.umich.edu/vips/project/traf_gen'''
+
+
+===Setup and Install===
+* Required dependency:
+**Boost C++ library (http://www.boost.org/) version 1.41 or above.
+**GCC version 4.4.7 or above
+
+===Configuration File===
+The traffic generator needs a configuration file to setup the network configuration and different hardware parameters.
+
+Currently supported parameters:
+* '''topology_type''': specify the topology of the network.
+** Supported type: mesh
+* '''traffic_pattern''': declare a traffic pattern.
+** Supported type: uniform
+* '''traffic_inj_process''': declare an injection rate
+** Supported type: uniform, burst, gaussian, onoff
+* '''traffic_senders''': declare a set of nodes that will send packets.
+* '''traffic_receivers''': declare a set of nodes that will receive packets. (may send replies)
+* '''packet_type''': declare a packet that is generated from a sender.
+* '''packet_type_reply''': declare a reply packet that will be generated from a receiver.
+** Supported type: fixed, erlang
+* '''node_group''': assign an injection process, traffic pattern, senders, receivers, and packets together to create a node group.
+* '''simclk_step''': specify the simulation step.
+* '''simclk_end''': specify when the simulation terminates.
+
+===Simulation Flow===
+The traffic generator currently runs in the following manner:
+# Take in configuration file
+## Construct node network
+## Declare injection processes
+## Declare traffic patterns
+## Declare sender and receiver nodes
+## Declare packets and reply packets.
+## Create node groups and assign injection process, traffic patterns, senders, receivers and packets to each node group.
+## Set the simulation step and end point
+# Initialize and start simulation:
+# At each simulation step:
+#* For each node group:
+#** Test each node in the group. If packet is to be generated:
+#**# Pick a destination node
+#**# Pick the type of packet to generate.
+#**#* If the chosen packet is a request-reply packet, send a reply job request to the queue.
+#**# Generate the packet and add it to traffic report
+#* Process reply job queue
+#* Increment simulation clock
+# Print post-simulation statistics
+# Write traffic log to file
+
+===Functionalities to be Supported===
+This is a list of functionalities that are currenty or will be worked. (in no particular order)
+*Setting parameters as a command line option
+*User configurable output format
+*DRAM memory access model
+
