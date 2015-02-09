@@ -119,39 +119,297 @@ The code is written in C++, and the subversion repository for the tool is locate
 <p>The code is written in C++, and the subversion repository for the tool is located in: '''ariel.eecs.umich.edu/vips/project/traf_gen'''</p>
 <h4>Setup and Install</h4>
 <ul>
-<li>Required dependency:<ul>
+<li>Required dependencies:<ul>
 <li>Boost C++ library (<a href="http://www.boost.org/">http://www.boost.org/</a>) version 1.41 or above.</li>
 <li>GCC version 4.4.7 or above</li>
 </ul>
 </li>
 </ul>
-<h4>Configuration File</h4>
-<p>The traffic generator needs a configuration file to setup the network configuration and different hardware parameters.</p>
-<p>Currently supported parameters:</p>
+<p>Running &lt;code&gt;make&lt;/code&gt; will compile all the source code in &lt;code&gt;src/&lt;/code&gt; directory and place the binary in &lt;code&gt;bin/&lt;/code&gt;.</p>
+<h4>Running the Simulator</h4>
+<p>The traffic generator needs two arguments: configuration file and output file. The configuration file lists the hardware configuration and the traffic behavior you want to simulate. The output file is where the resulting traffic log will get saved to.</p>
+<p>Example: &lt;pre&gt;bin/test mesh66_example.config mesh66_example.out&lt;/pre&gt;</p>
+<p>The also takes in three command-line options.</p>
 <ul>
-<li>'''topology_type''': specify the topology of the network.<ul>
-<li>Supported type: mesh</li>
+<li>-p [ --print ] : Prints the simulation progress and results onto standard out.</li>
+<li>-r [ --runtime] : Print the traffic incidents on the fly rather than waiting till the end of the simulation.</li>
+<li>-s [ --seed]: Random seed for the random number generator.</li>
+</ul>
+<h4>Configuration File</h4>
+<p>The traffic generator needs a configuration file to setup the network configuration and different hardware parameters. The configuration file is a simple text file that gets parsed by the program. Any line in the file that starts with "-" will get parsed and interpretted as a configuration parameter. Each parameter of a configuration line should be separated by a single space.  {| class="wikitable" cellpadding="2"</p>
+<table>
+<tr><td>-</td></tr>
+</table>
+<p>! scope="col" width="180px" | Syntax  ! scope="col" width=500px" | Description  ! scope="col" width=300px" | Additional Parameters</p>
+<table>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-topology_type [type] [params]</td>
+</tr>
+</table>
+<ul>
+<li>Supported types:<ul>
+<li>mesh [n] [m]</li>
 </ul>
 </li>
-<li>'''traffic_pattern''': declare a traffic pattern.<ul>
-<li>Supported type: uniform</li>
+</ul>
+<table>
+<tr><td>Specify the network topology.</td></tr>
+</table>
+<ul>
+<li>mesh: a n-by-m mesh network of nodes</li>
+</ul>
+<table>
+<tr><td>mesh [n] [m]</td></tr>
+</table>
+<ul>
+<li>n: width of the mesh network</li>
+<li>m: height of the mesh network</li>
+</ul>
+<table>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-traffic_pattern [id] [type]</td>
+</tr>
+</table>
+<ul>
+<li>Supported types:<ul>
+<li>uniform </li>
 </ul>
 </li>
-<li>'''traffic_inj_process''': declare an injection rate<ul>
-<li>Supported type: uniform, burst, gaussian, onoff</li>
+</ul>
+<table>
+<tr><td>Specify the traffic distribution of the network. Adds a bias to injection rate based location of the node on the network.</td></tr>
+</table>
+<ul>
+<li>uniform: uniform traffic pattern.</li>
+</ul>
+<table>
+<tr><td>[none]</td></tr>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-simclk_end [cycle]</td>
+</tr>
+<tr><td>Specify the number of cycles to simulate.</td></tr>
+<tr><td>[none]</td></tr>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-wait_for_replies</td>
+</tr>
+<tr><td>Optional flag. Have the simulator to stall terminating until all the outstanding request-reply packets have been fulfilled. If this flag is not set, the simulator will stop the simulation once the number of cycles specified by "simclk_end" is reached.</td></tr>
+<tr><td>[none]</td></tr>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-simclk_step [step_size]</td>
+</tr>
+<tr><td>Step size of the global clock of the simulator.</td></tr>
+<tr><td>[none]</td></tr>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-traffic_inj_process [id] [type] [params]</td>
+</tr>
+</table>
+<ul>
+<li>Supported types:<ul>
+<li>uniform [rate]</li>
+<li>burst [period] [dut] [init] [low_rate] [high_rate]</li>
+<li>gaussian [period] [start] [mean] [std_dev]</li>
+<li>onoff [prob_off] [prob_on] [on_rate] [init]</li>
 </ul>
 </li>
-<li>'''traffic_senders''': declare a set of nodes that will send packets.</li>
-<li>'''traffic_receivers''': declare a set of nodes that will receive packets. (may send replies)</li>
-<li>'''packet_type''': declare a packet that is generated from a sender.</li>
-<li>'''packet_type_reply''': declare a reply packet that will be generated from a receiver.<ul>
-<li>Supported type: fixed, erlang</li>
+</ul>
+<table>
+<tr><td>Declare an injection behavior.</td></tr>
+</table>
+<ul>
+<li>uniform: uniform injection rate during the entire duration of simulation.</li>
+<li>burst: injection rate is a periodic square wave with given period and duty cycle.</li>
+<li>gaussian: injection rate is a period pluse with a gaussian distribution around each pulse.</li>
+<li>onoff: injection rate is determined by a state machine with set probability of transitioning between on and off states.</li>
+</ul>
+<table>
+<tr><td>uniform [rate]</td></tr>
+</table>
+<ul>
+<li>rate - uniform packets per cycle injection rate burst [period] [dut] [init] [low_rate] [high_rate]</li>
+<li>period: period in cycles</li>
+<li>dut: duty cycle of the square wave</li>
+<li>init: Can be either "high" or "low". Specify whether the injection starts at a high-rate or low-rate.</li>
+<li>low_rate: injection rate when the square is at a low phase. (packets/cycle)</li>
+<li>high_rate: injection rate when the square wave is at a high phase. (packets/cycle) gaussian [period] [start] [mean] [std_dev]</li>
+<li>period: period in cycles</li>
+<li>start: start point of the gaussian pulse in cycles.</li>
+<li>mean: mean injection rate at the center of the pulse. (packet/cycle)</li>
+<li>std_dev: standard deviation of the pulse. (packet/cycle) onoff [prob_off] [prob_on] [on_rate] [off_rate]</li>
+<li>prob_off: probability of transitioning to an Off state.</li>
+<li>prob_on: probability of transitioning to an On state.</li>
+<li>on_rate: injection rate when at an On state. (packet/cycle)</li>
+<li>off_rate: injection rate when at an Off state. (packet/cycle)</li>
+</ul>
+<table>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-traffic_senders [id] { [nodes] }</td>
+</tr>
+<tr><td>Declare the sender nodes and group them as [id]</td></tr>
+<tr><td>nodes parameter is a list of node indices separated by a space.</td></tr>
+</table>
+<ul>
+<li>ex) { 0 1 2 3 } nodes can be specified as a range.</li>
+<li>ex) { 0-3 5 7-9 } nodes can be specified using the following keywords:</li>
+<li>{ ALL } - choose all nodes in the network</li>
+<li>{ ODD } - choose all odd-numbered indicies of the network</li>
+<li>{ EVEN } - choose all even-numbered indicies of the network</li>
+</ul>
+<table>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-traffic_receivers [id] { [nodes] }</td>
+</tr>
+<tr><td>Declare the receiver nodes and group them as [id]</td></tr>
+<tr><td>nodes parameter is a list of node indices separated by a space.</td></tr>
+</table>
+<ul>
+<li>ex) { 0 1 2 3 } nodes can be specified as a range.</li>
+<li>ex) { 0-3 5 7-9 } nodes can be specified using the following keywords:</li>
+<li>{ ALL } - choose all nodes in the network</li>
+<li>{ ODD } - choose all odd-numbered indicies of the network</li>
+<li>{ EVEN } - choose all even-numbered indicies of the network</li>
+</ul>
+<table>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-packet_type [id] [size] [weight]</td>
+</tr>
+</table>
+<p>-packet_type [id] [size] [weight] [reply_packet_id]</p>
+<table>
+<tr><td>Declare a packet type of a set size and call it [id]. If the packet is a request-reply packet that will generate a response from the the receiver, specify the id of the reply packet.</td></tr>
+<tr><td>weights - likelihood of the packet getting injected relative to other packets.</td></tr>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>-packet_type_reply [id] [type] [params]</td>
+</tr>
+</table>
+<ul>
+<li>Supported types:<ul>
+<li>fixed: [size] [delay]</li>
+<li>erlang: [size] [arrival_rate] [service_time]</li>
+<li>dram: [size]</li>
 </ul>
 </li>
-<li>'''node_group''': assign an injection process, traffic pattern, senders, receivers, and packets together to create a node group.</li>
-<li>'''simclk_step''': specify the simulation step.</li>
-<li>'''simclk_end''': specify when the simulation terminates.</li>
 </ul>
+<table>
+<tr><td>Declare a reply packet type and call it [id]. This is the response packet that gets generated when a node receives a request packet.</td></tr>
+</table>
+<ul>
+<li>fixed: reply packet is generated after a fixed amount of cycle delay.</li>
+<li>erlang: reply packet is generated based on a probabilistic queueing model based on a fixed arrival rate and service time.</li>
+<li>dram: response will be generated based on a dram memory model.</li>
+</ul>
+<table>
+<tr><td>fixed [size] [delay]</td></tr>
+</table>
+<ul>
+<li>size: size of the reply packet</li>
+<li>delay: fixed cycle delay between the node receiving the request and generating a response. erlang [size] [arrival_rate] [service_time]</li>
+<li>size: size of the reply packet.</li>
+<li>arrival_rate: expected packet arrival rate of the receiver node.</li>
+<li>service_time: expected service time of the packet. dram [size]</li>
+<li>size: size of the reply packet</li>
+</ul>
+<table>
+<tr><td>-</td></tr>
+<tr><td>-node_group [id] [inj_id] [tp_id] [send_id] [recv_id] &lt; [packet_ids] &gt;</td></tr>
+<tr><td>Specify a commnication behavior with a given set injection process between sender nodes and receiver nodes. Specify the type of packets used by these groups.</td></tr>
+<tr><td>Parameters:</td></tr>
+</table>
+<ul>
+<li>inj_id: id of the injection process for this group. Should have been declared by "traffic_inj_process".</li>
+<li>tp_id: Id of the traffic pattern for this group. Should have been declared by "traffic_pattern".</li>
+<li>send_id: Id of the sender nodes for this group. Should have been declared by "traffic_senders".</li>
+<li>recv_id: Id of the receiver nodes for this group. Should have been declared by "traffic_receivers".</li>
+<li>packet_ids: Ids of the packets for this group. This creates a pool of packets that get chosen based on random weighted probability. Should have been declared by "packet_type". (Do not include reply packets. They should have been associated with the request packets)<ul>
+<li>ex) &lt; read_packet write_packet &gt;</li>
+</ul>
+</li>
+</ul>
+<table>
+<tr><td>-</td></tr>
+<tr><td>-node_config [id] [type] [params] { [nodes] }</td></tr>
+</table>
+<ul>
+<li>Supported types:<ul>
+<li>clock [factor]</li>
+<li>buffer [buffer_size] [default_delay] &lt; [packet_ids] &gt;</li>
+<li>dram [dram_id]</li>
+</ul>
+</li>
+</ul>
+<table>
+<tr><td>Specify additional configurations to certain nodes.</td></tr>
+</table>
+<ul>
+<li>clock: Slow down the internal clock of the node by a given factor with respect to the global clock. The injection and packet parameters that will generate packets from these nodes will follow this internal clock.</li>
+<li>buffer: Specify a packet buffer for the nodes (models a load store queue). The buffer holds a set amount of packets for the node and new packets cannot be generated if the buffer is full.</li>
+<li>dram: Specify the given nodes as a dram memory module.</li>
+</ul>
+<table>
+<tr><td>clock [factor]</td></tr>
+</table>
+<ul>
+<li>factor: Slowdown factor of the node clock. buffer [buffer_size] [default_delay] &lt; [packet_ids] &gt;</li>
+<li>buffer_size: Size of the packet buffer.</li>
+<li>default_delay: Default delay the buffer will wait for a packet before evicting the packet out. If a packet is a request packet waiting for a reply, the buffer will retain the request packet until the reply arrives.</li>
+<li>&lt; [packet_ids] &gt; : Packets associated with this buffer. Only the packets listed here will go into this buffer. dram [dram_id]</li>
+<li>dram_id: Id of the dram model to associate with this node.</li>
+</ul>
+<table>
+<tr><td>-</td></tr>
+<tr><td>-dram_bank_config [dram_id] [n_banks] [service_rate] [arrival_rate]</td></tr>
+<tr><td>Specify the dram's bank configuration. These parameters affect the queueing model of the dram schedling.</td></tr>
+<tr><td>Parameters:</td></tr>
+</table>
+<ul>
+<li>n_banks: number of banks on the dram. </li>
+<li>service_rate: expected service rate of each bank.</li>
+<li>arrival_rate: expected arrival rate of each bank.</li>
+</ul>
+<table>
+<tr><td>-</td></tr>
+<tr><td>-dram_bank_config [dram_id] [dram_clock] [t_rcd] [t_cas] [t_rp] [t_ras] [p_row_closed] [p_conflict_open] [p_conflict_closed]</td></tr>
+<tr><td>Specify the dram's timing model. These parameters affect the model estimating dram access time.</td></tr>
+<tr><td>Parameters:</td></tr>
+</table>
+<ul>
+<li>dram_clock: DRAM controller's internal clock period, as a multiple of the global clock.</li>
+<li>[t_rcd] [t_cas] [t_rp] [t_ras]<ul>
+<li>t_rcd: row address to column address delay</li>
+<li>t_cas: column address strobe delay</li>
+<li>t_rp: row precharge time</li>
+<li>t_ras: row active time</li>
+</ul>
+</li>
+<li>[p_row_closed] [p_conflict_open] [p_conflict_closed]<ul>
+<li>p_row_closed: probability of a row hit but a closed row.</li>
+<li>p_conflict_open: probability of a row conflict on a open row</li>
+<li>p_conflict_closed: probability of a row conflict on a closed row</li>
+</ul>
+</li>
+</ul>
+<table>
+<tr><td>}</td></tr>
+</table>
 <h4>Simulation Flow</h4>
 <p>The traffic generator currently runs in the following manner:</p>
 <ol>
@@ -161,38 +419,167 @@ The code is written in C++, and the subversion repository for the tool is locate
 <li>Declare traffic patterns</li>
 <li>Declare sender and receiver nodes</li>
 <li>Declare packets and reply packets.</li>
+<li>Declare Dram timing and bank model</li>
 <li>Create node groups and assign injection process, traffic patterns, senders, receivers and packets to each node group.</li>
+<li>Configure special nodes. (clock, buffer, dram, etc)</li>
+<li>If "-booksim_enable" is set, initialize and configure booksim.</li>
 <li>Set the simulation step and end point</li>
 </ol>
 </li>
 <li>Initialize and start simulation:</li>
-<li>At each simulation step:<ul>
+<li>At each simulation step:<ol>
 <li>For each node group:<ul>
 <li>Test each node in the group. If packet is to be generated:<ol>
 <li>Pick a destination node</li>
-<li>Pick the type of packet to generate.<ul>
-<li>If the chosen packet is a request-reply packet, send a reply job request to the queue.</li>
-</ul>
-</li>
-<li>Generate the packet and add it to traffic report</li>
+<li>Pick the type of packet to generate.</li>
+<li>Place the generated packet on the send queue of the node</li>
 </ol>
 </li>
+<li>Process reply job queue</li>
 </ul>
 </li>
-<li>Process reply job queue</li>
-<li>Increment simulation clock</li>
+<li>For each node in the network:<ol>
+<li>Process the send queue of the node<ul>
+<li>Record the packet onto traffic report</li>
+<li>Send the packet to the receive queue of the destination node.</li>
 </ul>
+</li>
+<li>Process the receive queue of the node<ul>
+<li>If a packet is a request-reply packet, create a reply job and put it in the reply job queue.</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>Increment simulation clock</li>
+<li>Update internal node clocks.</li>
+</ol>
 </li>
 <li>Print post-simulation statistics</li>
 <li>Write traffic log to file</li>
 </ol>
-<h4>Functionalities to be Supported</h4>
-<p>This is a list of functionalities that are currenty or will be worked. (in no particular order)</p>
+<h3>Injection Models</h3>
+<p>{| class="wikitable" cellpadding="2"</p>
+<table>
+<tr><td>-</td></tr>
+</table>
+<p>! scope="col" | Name  ! scope="col" width=300px" | Description  ! scope="col" width=300px" | Injection Rate over Time</p>
+<table>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>uniform</td>
+</tr>
+<tr><td>Uniform injection rate. The injection rate is set to a fixed amount throughout the execution.</td></tr>
+<tr><td><a href="&lt;nowiki/&gt;File:http://web.eecs.umich.edu/~dohypark/images/uniform_injection.jpg">300px</a></td></tr>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>burst</td>
+</tr>
+<tr><td>Periodic injection rate from low to high. This tries to model periodic, bursty behavior of programs.</td></tr>
+<tr><td><a href="&lt;nowiki/&gt;File:http://web.eecs.umich.edu/~dohypark/images/burst_injection.jpg">300px</a></td></tr>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>gaussian</td>
+</tr>
+<tr><td>Similar to burst, but the peaks are modeled by a gaussian distribution.</td></tr>
+<tr><td><a href="&lt;nowiki/&gt;File:http://web.eecs.umich.edu/~dohypark/images/gaussian_injection.jpg">300px</a></td></tr>
+<tr><td>-</td></tr>
+<tr>
+<td>style=white-space:nowrap</td>
+<td>onoff</td>
+</tr>
+<tr><td>State-based model for more randomized bursty behavior.</td></tr>
+<tr><td><a href="&lt;nowiki/&gt;File:http://web.eecs.umich.edu/~dohypark/images/onoff_injection.jpg">300px</a></td></tr>
+<tr><td>-</td></tr>
+<tr><td>}</td></tr>
+</table>
+<h3>Request-Reply Models</h3>
+<p>The traffic generator currently supports three different ways a incoming request packet gets handled to generate a reply packet: fixed, erlang, and dram.</p>
+<p>Fixed reply uses a timer to count the number of node clock cycles it passed since a request packet has been received, and generates a reply packet once a fixed number of cycles are reached. The response is generated after a fixed number of cycle at all times, regardless of the situation.</p>
+<p>Erlang reply incorporates the Erlang Delay model to model the response of a node under certain loads. The model first calculates the probability of a packet not getting serviced based on the expected arrival rate and service rate. For each successive cycle that the packet remains waiting on the queue, this probability of waiting decays exponentially until the packet get serviced. This model assumes the packets are serviced in a first-come-first-served manner as they arrive in the queue.</p>
+<p>The details of the DRAM model is described in later sections.</p>
+<h3>DRAM Memory Model</h3>
+<p>The traffic generator models DRAM memory access in two stages, as shown in the figure:</p>
+<p><a href="&lt;nowiki/&gt;File:http://web.eecs.umich.edu/~dohypark/images/DRAM%20Timing%20model.jpg">700x700px</a></p>
+<p>First, the bank scheduling time is modeled using the erlang queueing theory model based on the number of banks, expected arrival rate and service rate. The arrival rate should reflect the expected rate at which memory requests are to arrive to each memory controller and queued to be sent to a bank. The service rate is the expected service time of a given rate on the memory controller's queue. For each packet that has been received by a memory controller, the probability of that packet not getting serviced after waiting t cycles in the controller's queue is calculated using the Erlang Delay Formula:</p>
+<p>&lt;pre&gt;P(t) = C(s,a)*exp(-(1-p)*s*u*t)&lt;/pre&gt;</p>
+<p>A random number betweeen 0 and 1 is drawn for the packet, and if that random number is below the probability calculated using the model, the packet does not get serviced on that cycle. If the packet do get serviced, the bank access time gets calculated.</p>
+<p>The memory access to the bank is categorized into four cases depending on which row the DRAM : {| class="wikitable"</p>
+<table>
+<tr><td>-</td></tr>
+</table>
+<p>! Timing !! Description</p>
+<table>
+<tr><td>-</td></tr>
+<tr>
+<td>t_cas </td>
+<td>Access to a row that is open.</td>
+</tr>
+<tr><td>-</td></tr>
+<tr>
+<td>t_cas + t_rcd </td>
+<td>Access to a row that is precharged (closed).</td>
+</tr>
+<tr><td>-</td></tr>
+<tr>
+<td>t_cas + t_rcd + t_rp </td>
+<td>Access to a row that is not precharged, but there is no open row.</td>
+</tr>
+<tr><td>-</td></tr>
+<tr>
+<td>t_cas + t_rcd + t_rp + t_ras </td>
+<td>Access to a row that is not precharged, and there is an open row.</td>
+</tr>
+<tr><td>}</td></tr>
+</table>
+<p>Given these parameters, the bank access time was modeled as:</p>
+<p>&lt;pre&gt;t_bank_access = t_cas+p_row_closed*(t_rcd + p_conflict_open*(t_rp + p_conflict_closed*t_ras)))&lt;/pre&gt;</p>
+<p>where:</p>
 <ul>
-<li>Setting parameters as a command line option</li>
-<li>User configurable output format</li>
-<li>DRAM memory access model</li>
+<li>p_row_closed: probability of a row not being open.</li>
+<li>p_conflict_open: probability of a row not being precharged.</li>
+<li>p_conflict_closed: probability of another row being open.</li>
 </ul>
+<h3>Running with Booksim</h3>
+<p>The traffic generator also has the option to run with a cycle-accurate network simulator "[http://nocs.stanford.edu/cgi-bin/trac.cgi/wiki/Resources/BookSim BookSim]", developed at Stanford. The traffic generator uses BookSim to simulate the network interconnect to have a closed-loop simulation of request-reply packet behaviors over the network.</p>
+<p>To enable BookSim support, add the following lines to the configuration file: &lt;pre&gt;-booksim_enable -booksim_config_file mesh66_example.booksim &lt;/pre&gt; The &lt;code&gt;-booksim_config_file&lt;/code&gt; command takes in a BookSim configuration file that contain the specification for the network interconnect. Make sure the number of nodes specified by the BookSim configuration file matches the number of nodes set on the traffic generator configuration file.</p>
+<h3>Example Configurations</h3>
+<p>Here are some example configurations. The configuration files for these examples can be found in examples/ folder.</p>
+<h4>4-by-4 Mesh Network</h4>
+<p>Suppose we want to create traffic for a 4-by-4 mesh network. The network consists of 4 memory nodes and 12 compute nodes, all partitioned in the following manner:</p>
+<p><a href="&lt;nowiki/&gt;File:http://web.eecs.umich.edu/~dohypark/images/Mesh44.png">400px</a></p>
+<p>The compute nodes only sends read and write packets with the memory node within its group. (e.g. Nodes 0,1,4 communicate only with Node 5, Nodes 2,3,7 with 6, etc) We also want memory nodes to communicate amongst themselves. The write packets will be 64 bytes each. The read requests will be 8 packets each, and the response packets will be 64 byte responses from a DRAM model. The memory node communications are 64 byte requests with 8 byte fixed-delay responses.</p>
+<p>First we declare the topology and the packets: &lt;pre&gt;-topology_type mesh 4 4 -traffic_pattern tp0 uniform</p>
+<ol>
+<li>Write and Read packets -packet_type write 64 1.0 0 -packet_type read_reqst 8 2.0 1 read_reply -packet_type_reply read_reply dram 64</li>
+</ol>
+<ol>
+<li>Memory communication -packet_type mem_comm 64 1.0 1 mem_comm_reply -packet_type_reply mem_comm_reply fixed 8 1&lt;/pre&gt;</li>
+</ol>
+<p>Let's say the compute and memory nodes communicate in uniform rate of 0.05 packets per cycle, while communication amongst the memory nodes are more bursty and unpredictable. &lt;pre&gt;-traffic_inj_process inj_unifm uniform 0.05 -traffic_inj_process inj_onoff onoff 0.1 0.9 0.8 all_off &lt;/pre&gt;</p>
+<p>Then we declare the node groups for the compute and memory nodes: &lt;pre&gt;# Group 1 -traffic_senders compute_1 { 0 1 4 } -traffic_receivers memory_1 { 5 } -node_group group_1 inj_unifm tp0 compute_1 memory_1 &lt; write read_rqst &gt;</p>
+<ol>
+<li>Group 2 -traffic_senders compute_2 { 2 3 7 } -traffic_receivers memory_2 { 6 } -node_group group_2 inj_unifm tp0 compute_2 memory_2 &lt; write read_rqst &gt;</li>
+</ol>
+<ol>
+<li>Group 3 -traffic_senders compute_3 { 8 12 13 } -traffic_receivers memory_3 { 9 } -node_group group_3 inj_unifm tp0 compute_3 memory_3 &lt; write read_rqst &gt;</li>
+</ol>
+<ol>
+<li>Group 4 -traffic_senders compute_4 { 11 14 15 } -traffic_receivers memory_4 { 10 } -node_group group_4 inj_unifm tp0 compute_4 memory_4 &lt; write read_rqst &gt;</li>
+</ol>
+<ol>
+<li>Memory Group Communication -traffic_senders memory_all { 5 6 9 10 } -traffic_receivers memory_all { 5 6 9 10 } -node_group group_m inj_onoff tp0 memory_all memory_all &lt; mem_comm &gt; &lt;/pre&gt;</li>
+</ol>
+<p>Now we specify the DRAM model. Let's assume the global simulation clock is 1GHz, and the DRAM memory clock is 500MHz, with 7-7-7-20 (CAS-RCD-RP-RAS) timing. Assuming the access probabilities are 0.3-0.3-0.1 and there are 4 banks. The arrival rate is 0.2 with service time 3. &lt;pre&gt;# DRAM Config -dram_bank_config dram0 4 3 0.2 -dram_timing_config dram0 2 7 7 7 20 0.3 0.3 0.1 -node_config dram_mem dram dram0 { 5 6 9 10 }&lt;/pre&gt;</p>
+<p>Finally, set the step size of the simulation to be 1 and have the simulation terminate after 100 cycles: &lt;pre&gt;-simclk_step 1  -simclk_end 100 -wait_for_replies &lt;/pre&gt;</p>
+<h5>Changing Injection Process</h5>
+<p>To go from uniform injection to burst injection between compute and memory nodes, simply declare a new injection paramter: &lt;pre&gt;-traffic_inj_process inj_burst burst 10 0.2 low 0 0.1&lt;/pre&gt; and replace "&lt;code&gt;inj_unifm&lt;/code&gt;" with "&lt;code&gt;inj_burst&lt;/code&gt;" in each of the&lt;code&gt;-node_group&lt;/code&gt; declaration.</p>
+<h5>Adding New Node Group</h5>
+<p>It is also possible to add new communication groups on top of the existing ones. For example, if there needs to be cache coherency protocals between the compute nodes of each group, one could declare additional node groups such as this: &lt;pre&gt;-traffic_inj_process inj_gauss gaussian 10 5 0.1 1.2  -traffic_receivers compute_1 { 0 1 4 } -node_group group_1_coherence inj_gauss tp0 compute_1 compute_1 &lt; write &gt; &lt;/pre&gt;</p>
+<h5>Running with BookSim</h5>
+<p>To run the network with BookSim for more accurate feedback behavior, first setup the BookSim configuration parameters on a separate file. Then, add the following lines (ex1_mesh44.booksim is the BookSim config file: &lt;pre&gt;-booksim_enable -booksim_config_file ex1_mesh44.booksim&lt;/pre&gt; This should run the traffic generator with network simulation on BookSim.</p>
 </div>
     </div>
     
